@@ -76,7 +76,7 @@ numpy==1.26.4
     #   transformers
 onnx==1.16.2
     # via -r requirements/base.in
-onnxruntime==1.19.2
+onnxruntime-gpu==1.19.2
     # via -r requirements/base.in
 opencv-python==4.10.0.84
     # via
