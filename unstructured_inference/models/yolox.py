@@ -4,7 +4,7 @@
 # https://github.com/Megvii-BaseDetection/YOLOX/blob/ac379df3c97d1835ebd319afad0c031c36d03f36/yolox/utils/demo_utils.py
 
 from typing import List, cast
-
+import torch
 import cv2
 import numpy as np
 import onnxruntime
@@ -72,18 +72,23 @@ class UnstructuredYoloXModel(UnstructuredObjectDetectionModel):
         """Start inference session for YoloX model."""
         self.model_path = model_path
 
-        available_providers = C.get_available_providers()
-        ordered_providers = [
-            "TensorrtExecutionProvider",
-            "CUDAExecutionProvider",
-            "CPUExecutionProvider",
-        ]
-        providers = [provider for provider in ordered_providers if provider in available_providers]
+        # available_providers = C.get_available_providers()
+        # ordered_providers = [
+        #     "TensorrtExecutionProvider",
+        #     "CUDAExecutionProvider",
+        #     "CPUExecutionProvider",
+        # ]
+        # providers = [provider for provider in ordered_providers if provider in available_providers]
+        #
+        # self.model = onnxruntime.InferenceSession(
+        #     model_path,
+        #     providers=providers,
+        # )
 
-        self.model = onnxruntime.InferenceSession(
-            model_path,
-            providers=providers,
-        )
+        providers = [("CUDAExecutionProvider", {"device_id": torch.cuda.current_device(),
+                                                "user_compute_stream": str(torch.cuda.current_stream().cuda_stream)})]
+        sess_options = onnxruntime.SessionOptions()
+        self.model = onnxruntime.InferenceSession(model_path, sess_options=sess_options, providers=providers)
 
         self.layout_classes = label_map
 
