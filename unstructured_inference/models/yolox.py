@@ -115,8 +115,14 @@ class UnstructuredYoloXModel(UnstructuredObjectDetectionModel):
         img, ratio = preprocess(origin_img, input_shape)
         session = self.model
 
-        ort_inputs = {session.get_inputs()[0].name: img[None, :, :, :]}
-        output = session.run(None, ort_inputs)
+        # ort_inputs = {session.get_inputs()[0].name: img[None, :, :, :]}
+        # output = session.run(None, ort_inputs)
+        io_binding = session.io_binding()
+        io_binding.bind_input(session.get_inputs()[0].name, img[None, :, :, :])
+        io_binding.bind_output(session.get_outputs()[0].name)
+        session.run_with_iobinding(io_binding)
+        output = io_binding.copy_outputs_to_cpu()
+
         # TODO(benjamin): check for p6
         predictions = demo_postprocess(output[0], input_shape, p6=False)[0]
 
