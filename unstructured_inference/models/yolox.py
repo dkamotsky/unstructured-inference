@@ -118,7 +118,13 @@ class UnstructuredYoloXModel(UnstructuredObjectDetectionModel):
         # ort_inputs = {session.get_inputs()[0].name: img[None, :, :, :]}
         # output = session.run(None, ort_inputs)
         io_binding = session.io_binding()
-        io_binding.bind_cpu_input(session.get_inputs()[0].name, img[None, :, :, :])
+        ort_inputs = onnxruntime.OrtValue.ortvalue_from_numpy(img[None, :, :, :], 'cuda', 0)
+        io_binding.bind_input(session.get_inputs()[0].name,
+                              device_type=ort_inputs.device_name(),
+                              device_id=0,
+                              element_type=np.float32,
+                              shape=ort_inputs.shape(),
+                              buffer_ptr=ort_inputs.data_ptr())
         io_binding.bind_output(session.get_outputs()[0].name)
         session.run_with_iobinding(io_binding)
         output = io_binding.copy_outputs_to_cpu()
