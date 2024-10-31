@@ -118,7 +118,7 @@ class UnstructuredYoloXModel(UnstructuredObjectDetectionModel):
         # ort_inputs = {session.get_inputs()[0].name: img[None, :, :, :]}
         # output = session.run(None, ort_inputs)
         io_binding = session.io_binding()
-        io_binding.bind_input(session.get_inputs()[0].name, img[None, :, :, :])
+        io_binding.bind_cpu_input(session.get_inputs()[0].name, img[None, :, :, :])
         io_binding.bind_output(session.get_outputs()[0].name)
         session.run_with_iobinding(io_binding)
         output = io_binding.copy_outputs_to_cpu()
