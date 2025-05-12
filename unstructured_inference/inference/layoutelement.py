@@ -385,6 +385,8 @@ def partition_groups_from_regions(regions: TextRegions) -> List[TextRegions]:
     regions, each list corresponding with a group"""
     if len(regions) == 0:
         return []
+    if isinstance(regions, list):
+        regions = TextRegions.from_list(regions)
     padded_coords = regions.element_coords.copy().astype(float)
     v_pad = (regions.y2 - regions.y1) * inference_config.ELEMENTS_V_PADDING_COEF
     h_pad = (regions.x2 - regions.x1) * inference_config.ELEMENTS_H_PADDING_COEF
